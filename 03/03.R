@@ -27,15 +27,40 @@ mode_dat2 <- dat2 %>%
   t() %>% as.vector
 mode_dat2
 
-dat3 <- data.frame(V1=mode_dat2) %>% 
-  mutate(
-    gamma = ifelse(V1>500, 1, 0),
-    epsilon = ifelse(V1<500, 1, 0)
-  )
+get.mode <- function(df, .reverse=FALSE){
+  out <- df %>% 
+    summarize_at(vars(c1:c12), ~ floor(sum(.x)/(n()/2))) %>% 
+    t() %>% as.vector
+  if(.reverse) return(1-(out*1))
+  return(out)
+}
 
-base::strtoi(paste(as.character(dat3$gamma), sep="", collapse=""), base=2)
-base::strtoi(paste(as.character(dat3$epsilon), sep="", collapse=""), base=2)
+base::strtoi(paste(as.character(get.mode(dat2)), sep="", collapse=""), base=2)
+base::strtoi(paste(as.character(get.mode(dat2, TRUE)), sep="", collapse=""), base=2)
 935*3160
 
 ## Part Two
 
+reverse <- FALSE
+dfilt <- dat2
+for(i in 1:ncol(dfilt)){
+  modeval <- get.mode(dfilt, reverse)[i]
+  print(modeval)
+  dfilt <- dfilt[dfilt[,i] == modeval,]
+  print(dfilt)
+}
+
+base::strtoi(paste(as.character(dfilt %>% t() %>% as.vector()), sep="", collapse=""), base=2)
+
+reverse <- TRUE
+dfilt <- dat2
+for(i in 1:9){
+  modeval <- get.mode(dfilt, reverse)[i]
+  print(modeval)
+  dfilt <- dfilt[dfilt[,i] == modeval,]
+  print(dfilt)
+}
+
+base::strtoi(paste(as.character(dfilt %>% t() %>% as.vector()), sep="", collapse=""), base=2)
+
+573*2902
