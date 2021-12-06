@@ -73,46 +73,39 @@ bingo.call %>%
 sum(365,145,310,288)*as.numeric(ran.num[i])
 
 ## Part Two
-# ####### THIS DOESN'T WORK
-# bingo <- function(df){
-#   ## create copy to return
-#   df.out <- df
-#   ## check vertical
-#   vert <- df %>%
-#     group_by(bn) %>%
-#     mutate_at(vars(V1:V5), ~ ifelse(.x == "X", 1, 0)) %>%
-#     summarize_at(vars(V1:V5), sum) %>%
-#     filter(
-#       V1==5 | V2==5 | V3==5 | V4==5 | V5==5
-#     ) %>% distinct(bn) %>% pull(bn)
-#   
-#   ## check horizontal
-#   hori <- df %>%
-#     filter(
-#       V1 == "X" & V2 == "X" & V3 == "X" & V4 == "X" & V5 == "X"
-#     ) %>% distinct(bn) %>% pull(bn)
-#   
-#   return(df.out %>% mutate(winner=ifelse(
-#     bn %in% vert | bn %in% hori, winner + 1, winner
-#   )))
-# }
-# 
-# 
-# 
-# brd <- boards %>% mutate(winner = 0)
-# for(i in seq_along(ran.num)){
-#   ## mark board
-#   check.brd <- mark.boards(brd, ran.num[i])
-#   ## check bingo
-#   check.brd <- bingo(check.brd)
-#   ## quit on last card
-#   if(!any(check.brd$winner == 0)){ 
-#     break
-#   }else{
-#     ## update board if no board wins
-#     brd <- mark.boards(brd, ran.num[i])
-#     brd <- bingo(check.brd)
-#   }
-# }
-# brd
-# ran.num[i]
+bingo <- function(df){
+  ## create copy to return
+  df.out <- df
+  ## check vertical
+  vert <- df %>%
+    group_by(bn) %>%
+    mutate_at(vars(V1:V5), ~ ifelse(.x == "X", 1, 0)) %>%
+    summarize_at(vars(V1:V5), sum) %>%
+    filter(
+      V1==5 | V2==5 | V3==5 | V4==5 | V5==5
+    ) %>% distinct(bn) %>% pull(bn)
+
+  ## check horizontal
+  hori <- df %>%
+    filter(
+      V1 == "X" & V2 == "X" & V3 == "X" & V4 == "X" & V5 == "X"
+    ) %>% distinct(bn) %>% pull(bn)
+
+  return(filter(df.out, ! bn %in% vert) %>% 
+           filter(! bn %in% hori))
+}
+
+brd <- boards
+for(i in seq_along(ran.num)){
+  ## mark board
+  brd <- mark.boards(brd, ran.num[i])
+  ## check bingo
+  brd <- bingo(brd)
+  ## quit on last card
+  if(nrow(distinct(brd, bn)) == 1) break
+}
+brd
+ran.num[i+1]
+
+## calculate score
+sum(67,86,46,63)*94
