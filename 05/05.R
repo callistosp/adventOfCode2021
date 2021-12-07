@@ -16,19 +16,58 @@ dat <- data.frame(x1=split1[,1], y1=split1[,2],
     ysame = ifelse(y1 == y2, 1, 0)
   )
 
-## change output data structure here
-## do this instead
-# tmp <- list(c(x=1,y=1), c(x=1,y=2))
-# tmp %>% do.call(bind_rows, .)
+out <- list()
+for(i in 1:nrow(dat)){
+  if(dat$xsame[i] == 1){
+    for(j in seq(dat$y1[i], dat$y2[i])){
+      out[[length(out)+1]] <- paste0(dat$x1[i], ",", j)
+      # out[[length(out)+1]] <- c(x=dat$x1[i], y=j)
+    }
+  }
+  
+  if(dat$ysame[i] == 1){
+    for(j in seq(dat$x1[i], dat$x2[i])){
+      out[[length(out)+1]] <- paste0(j,",",dat$y1[i])
+      # out[[length(out)+1]] <- c(x=j, y=dat$y1[i])
+    }
+  }
+}
 
-# out <- list()
-# for(i in 1:nrow(dat)){
-#   if(dat$xsame[i] == 1){
-#     out[[i]] <- list(x = dat$x1[i], y = seq(dat$y1[i], dat$y2[i]))
-#   }else if(dat$ysame[i] == 1){
-#     out[[i]] <- list(x = seq(dat$x1[i], dat$x2[i]), y = dat$y1[i])
-#   }else{
-#     out[[i]] <- NULL
-#   }
-# }
-# out  
+res <- do.call(rbind, out) %>% as.data.frame()
+names(res) <- "value"
+
+res %>% 
+  count(value) %>% 
+  filter(n>1) %>% 
+  nrow()
+
+## Part Two
+out <- list()
+for(i in 1:nrow(dat)){
+  if(dat$xsame[i] == 1){
+    ## vertical
+    for(j in seq(dat$y1[i], dat$y2[i])){
+      out[[length(out)+1]] <- paste0(dat$x1[i], ",", j)
+    }
+  } else if(dat$ysame[i] == 1){
+    ## horizontal
+    for(j in seq(dat$x1[i], dat$x2[i])){
+      out[[length(out)+1]] <- paste0(j,",",dat$y1[i])
+    }
+  } else {
+    ## diagonal
+    xseq <- seq(dat$x1[i], dat$x2[i])
+    yseq <- seq(dat$y1[i], dat$y2[i])
+    for(j in seq_along(xseq)){
+      out[[length(out)+1]] <- paste0(xseq[j],",",yseq[j])
+    }
+  }
+}
+
+res <- do.call(rbind, out) %>% as.data.frame()
+names(res) <- "value"
+
+res %>% 
+  count(value) %>% 
+  filter(n>1) %>% 
+  nrow()
